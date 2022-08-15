@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 .recipes-layout {
   display: flex;
   flex-direction: column;
@@ -18,7 +22,7 @@
 
 .recipes-header .home-link {
   font-family: var(--font-display);
-  font-size: 3rem;
+  /* font-size: 3rem; */
 }
 
 .recipes-header .home-link a {

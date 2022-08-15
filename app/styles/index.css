@@ -1,3 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 /*
  * when the user visits this page, this style will apply, when they leave, it
  * will get unloaded, so don't worry so much about conflicting styles between
@@ -30,6 +33,7 @@ h1 {
   text-shadow: 0 3px 0 rgba(0, 0, 0, 0.75);
   text-align: center;
   line-height: 0.5;
+  @apply text-slate-50;
 }
 
 h1 span {

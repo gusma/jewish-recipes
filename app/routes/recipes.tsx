@@ -1,13 +1,32 @@
-import { Outlet, Link } from "@remix-run/react";
-import type { LinksFunction } from "@remix-run/node";
+import type { LinksFunction, LoaderFunction } from "@remix-run/node";
+import type { Recipe } from "@prisma/client";
+import { Link, Outlet, useLoaderData } from "@remix-run/react";
+import { json } from "@remix-run/node";
 
+import { db } from "~/utils/db.server";
 import stylesUrl from "~/styles/recipes.css";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: stylesUrl }];
 };
 
+type LoaderData = {
+  recipeListItems: Array<{ id: string; name: string }>;
+};
+
+export const loader: LoaderFunction = async () => {
+  const data: LoaderData = {
+    recipeListItems: await db.recipe.findMany({
+      take: 5,
+      select: { id: true, name: true },
+      orderBy: { createdAt: "desc" },
+    }),
+  };
+  return json(data);
+};
+
 export default function RecipesRoute() {
+  const data = useLoaderData<LoaderData>();
   return (
     <div className="recipes-layout">
       <header className="recipes-header">
@@ -26,9 +45,11 @@ export default function RecipesRoute() {
             <Link to=".">Get a random recipe</Link>
             <p>Here are a few more jokes to check out:</p>
             <ul>
-              <li>
-                <Link to="some-joke-id">Hippo</Link>
-              </li>
+              {data.recipeListItems.map((recipe) => (
+                <li key={recipe.id}>
+                  <Link to={recipe.id}>{recipe.name}</Link>
+                </li>
+              ))}
             </ul>
             <Link to="new" className="button">
               Add your own

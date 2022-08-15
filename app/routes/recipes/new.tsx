@@ -1,7 +1,7 @@
 export default function NewRecipeRoute() {
   return (
     <div>
-      <p>Add your own great recipe</p>
+      <p>Add your own recipe</p>
       <form method="post">
         <div>
           <label>

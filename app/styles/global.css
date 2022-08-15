@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @font-face {
   font-family: "baloo";
   src: url("/fonts/baloo/baloo.woff") format("woff");
@@ -7,7 +11,7 @@
 
 :root {
   --hs-links: 48 100%;
-  --color-foreground: hsl(0, 0%, 100%);
+  --color-foreground: #000;
   --color-background: hsl(278, 73%, 19%);
   --color-links: hsl(var(--hs-links) 50%);
   --color-links-hover: hsl(var(--hs-links) 45%);
@@ -48,7 +52,7 @@ body {
   padding: 0;
   margin: 0;
   color: var(--color-foreground);
-  background-color: var(--color-background);
+  /* background-color: var(--color-background); */
 }
 
 [data-light] {
@@ -95,28 +99,28 @@ h6 {
 }
 
 h1 {
-  font-size: 2.25rem;
+  /* font-size: 2.25rem; */
   line-height: 2.5rem;
 }
 
 h2 {
-  font-size: 1.5rem;
+  /* font-size: 1.5rem; */
   line-height: 2rem;
 }
 
 h3 {
-  font-size: 1.25rem;
+  /* font-size: 1.25rem; */
   line-height: 1.75rem;
 }
 
 h4 {
-  font-size: 1.125rem;
+  /* font-size: 1.125rem; */
   line-height: 1.75rem;
 }
 
 h5,
 h6 {
-  font-size: 0.875rem;
+  /* font-size: 0.875rem; */
   line-height: 1.25rem;
 }
 
@@ -153,11 +157,11 @@ h6 {
   align-items: center;
   justify-content: center;
   background-color: var(--color-links);
-  color: var(--color-background);
+  color: var(--color-foreground);
   font-family: var(--font-display);
   font-weight: bold;
   line-height: 1;
-  font-size: 1.125rem;
+  /* font-size: 1.125rem; */
   margin: 0;
   padding: 0.625em 1em;
   border: 0;
@@ -249,7 +253,7 @@ textarea {
   background-blend-mode: luminosity;
   box-shadow: none;
   font-family: var(--font-body);
-  font-size: 1rem;
+  /* font-size: 1rem; */
   font-weight: normal;
   line-height: 1.5;
   color: var(--color-foreground);
@@ -344,11 +348,15 @@ label > [type="radio"] {
   margin: 0;
   margin-top: 0.25em;
   color: var(--color-invalid);
-  font-size: 0.8rem;
+  /* font-size: 0.8rem; */
 }
 
 .error-container {
   background-color: hsla(356, 77%, 59%, 0.747);
   border-radius: 0.25rem;
   padding: 0.5rem 1rem;
+}
+
+p {
+  @apply text-3xl !important;
 }

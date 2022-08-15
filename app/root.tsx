@@ -1,10 +1,11 @@
-import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import type { LinksFunction } from "@remix-run/node";
 
 import { LiveReload, Outlet, Links, Meta } from "@remix-run/react";
 
 import globalStylesUrl from "./styles/global.css";
 import globalMediumStylesUrl from "./styles/global-medium.css";
 import globalLargeStylesUrl from "./styles/global-large.css";
+import styles from "./tailwind.css";
 
 export const links: LinksFunction = () => {
   return [
@@ -22,6 +23,7 @@ export const links: LinksFunction = () => {
       href: globalLargeStylesUrl,
       media: "screen and (min-width: 1024px)",
     },
+    { rel: "stylesheet", href: styles },
   ];
 };
 
