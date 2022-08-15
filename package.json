@@ -12,7 +12,9 @@
     "dev:css": "npm run generate:css -- --watch",
     "dev:remix": "remix dev",
     "generate:css": "npx tailwindcss -o ./app/tailwind.css",
-    "start": "remix-serve build"
+    "lint": "eslint --cache --cache-location ./node_modules/.cache/.eslintcache --ext js,jsx,ts,tsx .",
+    "start": "remix-serve build",
+    "typecheck": "tsc -b ./other/tsconfig-project.json"
   },
   "dependencies": {
     "@prisma/client": "^4.2.1",
@@ -25,12 +27,26 @@
   "devDependencies": {
     "@remix-run/dev": "^1.6.8",
     "@remix-run/eslint-config": "^1.6.8",
+    "@types/compression": "^1.7.2",
+    "@types/cookie-session": "^2.0.44",
+    "@types/dom-mediacapture-record": "^1.0.11",
+    "@types/express-http-proxy": "^1.6.3",
+    "@types/fs-extra": "^9.0.13",
+    "@types/lodash": "^4.14.182",
+    "@types/morgan": "^1.9.3",
+    "@types/node": "^18.0.6",
+    "@types/on-finished": "^2.3.1",
+    "@types/qrcode": "^1.4.2",
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
+    "@types/react-table": "^7.7.12",
+    "@types/redis": "^2.8.32",
+    "@types/uuid": "^8.3.4",
     "autoprefixer": "^10.4.8",
     "concurrently": "^7.3.0",
     "esbuild-register": "^3.3.3",
     "eslint": "^8.22.0",
+    "eslint-config-kentcdodds": "^20.3.1",
     "npm-run-all": "^4.1.5",
     "postcss": "^8.4.16",
     "prisma": "^4.2.1",
@@ -39,5 +55,15 @@
   },
   "engines": {
     "node": ">=14"
-  }
+  },
+  "eslintIgnore": [
+    "node_modules",
+    "coverage",
+    "server-build",
+    "build",
+    "other",
+    "public/build",
+    "*.ignored/",
+    "*.ignored.*"
+  ]
 }

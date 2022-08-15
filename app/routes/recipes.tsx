@@ -4,7 +4,7 @@ import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import { json } from "@remix-run/node";
 
 import { db } from "~/utils/db.server";
-import stylesUrl from "~/styles/recipes.css";
+import stylesUrl from "../styles/recipes.css";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: stylesUrl }];
