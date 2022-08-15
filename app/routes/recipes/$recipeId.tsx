@@ -3,7 +3,7 @@ import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import type { Recipe } from "@prisma/client";
 
-import { db } from "~/utils/db.server";
+import { db } from "../../utils/db.server";
 
 type LoaderData = { recipe: Recipe };
 

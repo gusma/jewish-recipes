@@ -3,7 +3,7 @@ import type { Recipe } from "@prisma/client";
 import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import { json } from "@remix-run/node";
 
-import { db } from "~/utils/db.server";
+import { db } from "../utils/db.server";
 import stylesUrl from "../styles/recipes.css";
 
 export const links: LinksFunction = () => {
@@ -43,7 +43,10 @@ export default function RecipesRoute() {
         <div className="container">
           <div className="recipe-list">
             <Link to=".">Get a random recipe</Link>
-            <p>Here are a few more jokes to check out:</p>
+            <p>
+              Here are a few more recipes
+              <br /> to check out:
+            </p>
             <ul>
               {data.recipeListItems.map((recipe) => (
                 <li key={recipe.id}>
