@@ -6,34 +6,32 @@ on:
   pull_request: {}
 
 jobs:
-  changes:
-    name: 🔎 Determine deployable changes
-    runs-on: ubuntu-latest
-    outputs:
-      DEPLOYABLE: ${{steps.changes.outputs.DEPLOYABLE}}
-    steps:
-      - name: ⬇️ Checkout repo
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: "50"
+  # changes:
+  #   name: 🔎 Determine deployable changes
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     DEPLOYABLE: ${{steps.changes.outputs.DEPLOYABLE}}
+  #   steps:
+  #     - name: ⬇️ Checkout repo
+  #       uses: actions/checkout@v2
+  #       with:
+  #         fetch-depth: "50"
 
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
+  #     - name: ⎔ Setup node
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: 16
 
-      - name: 🔎 Determine deployable changes
-        id: changes
-        run: >-
-          echo ::set-output name=DEPLOYABLE::$(node ./other/is-deployable.js ${{
-          github.sha }})
-      - name: ❓ Deployable
-        run: >-
-          echo "DEPLOYABLE: ${{steps.changes.outputs.DEPLOYABLE}}"
+  #     - name: 🔎 Determine deployable changes
+  #       id: changes
+  #       run: >-
+  #         echo ::set-output name=DEPLOYABLE::$(node ./other/is-deployable.js ${{
+  #         github.sha }})
+  #     - name: ❓ Deployable
+  #       run: >-
+  #         echo "DEPLOYABLE: ${{steps.changes.outputs.DEPLOYABLE}}"
   lint:
     name: ⬣ ESLint
-    needs: [changes]
-    if: needs.changes.outputs.DEPLOYABLE == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: 🛑 Cancel Previous Runs
@@ -55,8 +53,6 @@ jobs:
 
   typecheck:
     name: ʦ TypeScript
-    needs: [changes]
-    if: needs.changes.outputs.DEPLOYABLE == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: 🛑 Cancel Previous Runs
@@ -164,9 +160,6 @@ jobs:
 
   build:
     name: 🐳 Build
-    needs: [changes]
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' &&
-      needs.changes.outputs.DEPLOYABLE == 'true' }}
     runs-on: ubuntu-latest
     # only build/deploy main branch on pushes
     steps:
@@ -199,9 +192,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: registry.fly.io/withered-frost-3196:${{ github.sha }}
-          build-args: |
-            COMMIT_SHA=${{ github.sha }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
 
