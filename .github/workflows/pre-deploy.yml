@@ -1,0 +1,238 @@
+name: 🚀 Pre-Deploy
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+
+jobs:
+  changes:
+    name: 🔎 Determine deployable changes
+    runs-on: ubuntu-latest
+    outputs:
+      DEPLOYABLE: ${{steps.changes.outputs.DEPLOYABLE}}
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: "50"
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - name: 🔎 Determine deployable changes
+        id: changes
+        run: >-
+          echo ::set-output name=DEPLOYABLE::$(node ./other/is-deployable.js ${{
+          github.sha }})
+      - name: ❓ Deployable
+        run: >-
+          echo "DEPLOYABLE: ${{steps.changes.outputs.DEPLOYABLE}}"
+  lint:
+    name: ⬣ ESLint
+    needs: [changes]
+    if: needs.changes.outputs.DEPLOYABLE == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛑 Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.9.1
+
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v2
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - name: 📥 Download deps
+        uses: bahmutov/npm-install@v1
+
+      - name: 🔬 Lint
+        run: npm run lint
+
+  typecheck:
+    name: ʦ TypeScript
+    needs: [changes]
+    if: needs.changes.outputs.DEPLOYABLE == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛑 Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.9.1
+
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v2
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - name: 📥 Download deps
+        uses: bahmutov/npm-install@v1
+
+      - name: 🔎 Type check
+        run: npm run typecheck
+
+  # jest:
+  #   name: 🃏 Jest
+  #   needs: [changes]
+  #   if: needs.changes.outputs.DEPLOYABLE == 'true'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: 🛑 Cancel Previous Runs
+  #       uses: styfle/cancel-workflow-action@0.9.1
+
+  #     - name: ⬇️ Checkout repo
+  #       uses: actions/checkout@v2
+
+  #     - name: ⎔ Setup node
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: 16
+
+  #     - name: 📥 Download deps
+  #       uses: bahmutov/npm-install@v1
+
+  #     - name: 🃏 Run jest
+  #       run: npm run test -- --coverage
+
+  # cypress:
+  #   name: ⚫️ Cypress
+  #   needs: [changes]
+  #   if: needs.changes.outputs.DEPLOYABLE == 'true'
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     # when one test fails, DO NOT cancel the other
+  #     # containers, because this will kill Cypress processes
+  #     # leaving the Dashboard hanging ...
+  #     # https://github.com/cypress-io/github-action/issues/48
+  #     fail-fast: false
+  #     matrix:
+  #       # run 3 copies of the current job in parallel
+  #       containers: ['🐨 Kody', '💯 Hannah', '🦉 Olivia']
+  #   steps:
+  #     - name: 🛑 Cancel Previous Runs
+  #       uses: styfle/cancel-workflow-action@0.9.1
+
+  #     - name: ⬇️ Checkout repo
+  #       uses: actions/checkout@v2
+
+  #     - name: 🏄 Copy test env vars
+  #       run: cp .env.example .env
+
+  #     - name: ⎔ Setup node
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: 16
+
+  #     - name: 📥 Download deps
+  #       uses: bahmutov/npm-install@v1
+
+  #     - name: 🎛 Installing ffmpeg
+  #       uses: FedericoCarboni/setup-ffmpeg@v1
+
+  #     - name: ⚙️ Build
+  #       run: npm run build
+  #       env:
+  #         ENABLE_TEST_ROUTES: 'true'
+  #         COMMIT_SHA: ${{ github.sha }}
+
+  #     - name: 🐳 Docker compose
+  #       run: docker-compose up -d && sleep 3 && npx prisma migrate reset --force
+  #       env:
+  #         DATABASE_URL: 'postgresql://kody:the_koala@localhost:5432/kentcdodds_db?schema=public'
+
+  #     - name: 🌳 Cypress run
+  #       uses: cypress-io/github-action@v4
+  #       continue-on-error: true
+  #       with:
+  #         start: npm run start:mocks
+  #         wait-on: 'http://localhost:8811'
+  #         record: true
+  #         parallel: true
+  #         group: 'KCD Cypress'
+  #       env:
+  #         PORT: '8811'
+  #         RUNNING_E2E: 'true'
+  #         DATABASE_URL: 'postgresql://kody:the_koala@localhost:5432/kentcdodds_db?schema=public'
+  #         REDIS_URL: ${{ secrets.REDIS_CI_TEST_URL }}
+  #         CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+  #         DISABLE_TELEMETRY: 'true'
+
+  build:
+    name: 🐳 Build
+    needs: [changes]
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' &&
+      needs.changes.outputs.DEPLOYABLE == 'true' }}
+    runs-on: ubuntu-latest
+    # only build/deploy main branch on pushes
+    steps:
+      - name: 🛑 Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.9.1
+
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v2
+
+      - name: 🐳 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      # Setup cache
+      - name: ⚡️ Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+      - name: 🔑 Fly Registry Auth
+        uses: docker/login-action@v1
+        with:
+          registry: registry.fly.io
+          username: x
+          password: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: 🐳 Docker build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: registry.fly.io/withered-frost-3196:${{ github.sha }}
+          build-args: |
+            COMMIT_SHA=${{ github.sha }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
+
+      # This ugly bit is necessary if you don't want your cache to grow forever
+      # till it hits GitHub's limit of 5GB.
+      # Temp fix
+      # https://github.com/docker/build-push-action/issues/252
+      # https://github.com/moby/buildkit/issues/1896
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+  # deploy:
+  #   name: 🚀 Deploy
+  #   runs-on: ubuntu-latest
+  #   needs: [changes, lint, typecheck, jest, build]
+  #   # only build/deploy main branch on pushes
+  #   if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' &&
+  #     needs.changes.outputs.DEPLOYABLE == 'true' }}
+
+  #   steps:
+  #     - name: 🛑 Cancel Previous Runs
+  #       uses: styfle/cancel-workflow-action@0.9.1
+
+  #     - name: ⬇️ Checkout repo
+  #       uses: actions/checkout@v2
+
+  #     - name: 🚀 Deploy
+  #       uses: superfly/flyctl-actions@1.1
+  #       with:
+  #         args: "deploy -i registry.fly.io/withered-frost-3196:${{ github.sha }}
+  #           --strategy rolling"
+  #       env:
+  #         FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
